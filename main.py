@@ -76,6 +76,6 @@ async def get_iqama_details(iqama_id: str):
 register_tortoise(
     app,
     config=TORTOISE_ORM,
-    generate_schemas=False,  # ✅ Change this to True temporarily,
+    generate_schemas=True,  # ✅ Change this to True temporarily,
     add_exception_handlers=True,
 )
