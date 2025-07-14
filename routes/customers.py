@@ -67,8 +67,8 @@ async def start_customer_onboarding(data: StartOnboardingRequest):
     if not iqama:
         raise HTTPException(status_code=404, detail="Iqama ID not found in records")
 
-    if iqama.expiry_date and iqama.expiry_date < date.today():
-        raise HTTPException(status_code=400, detail="Iqama ID is expired")
+    #if iqama.expiry_date and iqama.expiry_date < date.today():
+    #    raise HTTPException(status_code=400, detail="Iqama ID is expired")
 
     dep_ref = await generate_dep_reference_number()
 
