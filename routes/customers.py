@@ -48,13 +48,13 @@ class UpdateCustomerRequest(BaseModel):
     source_of_income: Optional[str]
     employment_sector: Optional[str]
     industry: Optional[str]
-    salary_income: Optional[float]
-    business_income: Optional[float]
-    investment_income: Optional[float]
-    rental_income: Optional[float]
-    personal_allowance: Optional[float]
-    pension_income: Optional[float]
-    other_income: Optional[float]
+    salary_income: Optional[str]
+    business_income: Optional[str]
+    investment_income: Optional[str]
+    rental_income: Optional[str]
+    personal_allowance: Optional[str]
+    pension_income: Optional[str]
+    other_income: Optional[str]
 
 # ⬇️ POST /customers/start
 @router.post("/start")
@@ -194,10 +194,24 @@ async def update_customer(iqama_id: str, request: Request):
     update_data = await request.json()
     updated_fields_list = []
 
+    from re import sub
+
+    def clean_amount(val):
+        try:
+            return float(sub(r'[^\d.]', '', val)) if val else None
+        except:
+            return None
+
     for field, value in update_data.items():
         if hasattr(record, field):
-            setattr(record, field, value)
-            updated_fields_list.append(field)
+            if field in [
+                "salary_income", "business_income", "investment_income",
+                "rental_income", "personal_allowance", "pension_income", "other_income"
+            ]:
+                setattr(record, field, clean_amount(value))
+            else:
+                setattr(record, field, value)
+            updated_fields_list.append(field)  # ✅ Add this
 
     if not updated_fields_list:
         raise HTTPException(status_code=400, detail="No valid fields provided for update.")
