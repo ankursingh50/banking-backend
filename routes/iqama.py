@@ -32,10 +32,13 @@ async def validate_iqama(payload: dict):
 
     return {
         "full_name": iqama.full_name,
+        "arabic_name": iqama.arabic_name,
         "gender": iqama.gender,
         "city": iqama.city,
         "age": age,
         "date_of_birth": str(iqama.date_of_birth),
+        "dob_hijri": str(iqama.dob_hijri) if iqama.dob_hijri else "",
         "issue_date": str(iqama.issue_date) if iqama.issue_date else None,
-        "expiry_date": str(iqama.expiry_date) if iqama.expiry_date else None
+        "expiry_date": str(iqama.expiry_date) if iqama.expiry_date else None,
+        "expiry_date_hijri": str(iqama.expiry_date_hijri) if iqama.expiry_date_hijri else ""
     }
