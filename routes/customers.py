@@ -75,9 +75,12 @@ async def start_customer_onboarding(data: StartOnboardingRequest):
     record = await OnboardedCustomer.create(
         iqama_id=iqama.iqama_id,
         full_name=iqama.full_name,
+        arabic_name=iqama.arabic_name,  
         mobile_number=iqama.mobile_number,
         date_of_birth=strip_tz(iqama.date_of_birth),
+        date_of_birth_hijri=str(iqama.dob_hijri) if iqama.dob_hijri else None,
         expiry_date=strip_tz(iqama.expiry_date),
+        expiry_date_hijri=iqama.expiry_date_hijri,
         issue_date=strip_tz(iqama.issue_date),
         age=(date.today().year - iqama.date_of_birth.year - ((date.today().month, date.today().day) < (iqama.date_of_birth.month, iqama.date_of_birth.day))) if iqama.date_of_birth else None,
         gender=iqama.gender,

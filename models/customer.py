@@ -19,6 +19,9 @@ class OnboardedCustomer(models.Model):
     country = fields.CharField(max_length=50, default="Saudi Arabia")
     mobile_number = fields.CharField(max_length=15, null=True)
     additional_mobile_number = fields.CharField(max_length=15, null=True)
+    arabic_name = fields.CharField(max_length=100, null=True)
+    date_of_birth_hijri = fields.CharField(max_length=20, null=True)
+    expiry_date_hijri = fields.CharField(max_length=20, null=True)
 
     dep_reference_number = fields.CharField(max_length=10, unique=True)
     device_id = fields.CharField(max_length=100, null=True)
