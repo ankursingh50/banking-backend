@@ -17,6 +17,9 @@ class IqamaRecord(models.Model):
     expiry_date = fields.DateField(null=True)
     age = fields.IntField(null=True)
     additional_mobile_number = fields.CharField(max_length=10, null=True)
+    arabic_name = fields.TextField(null=True)
+    dob_hijri = fields.DateField(null=True)
+    expiry_date_hijri = fields.DateField(null=True)
 
     class Meta:
         table = "iqama_records"
