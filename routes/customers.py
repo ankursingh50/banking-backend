@@ -59,7 +59,8 @@ class UpdateCustomerRequest(BaseModel):
     business_industry: Optional[str]
     hafiz_income: Optional[str]
     unemployed_income: Optional[str]
-
+    housewife_allowance: Optional[str]
+    student_allowance: Optional[str]
 
 # ⬇️ POST /customers/start
 @router.post("/start")
@@ -180,13 +181,15 @@ async def get_customer(iqama_id: str):
         "business_income": record.business_income,
         "investment_income": record.investment_income,
         "rental_income": record.rental_income,
-        "personal_allowance": record.personal_allowance,
+        #"personal_allowance": record.personal_allowance,
         "pension_income": record.pension_income,
         #"other_income": record.other_income,
         "employer_industry": record.employer_industry,
         "business_industry": record.business_industry,
         "hafiz_income": record.hafiz_income,
         "unemployed_income": record.unemployed_income,
+        "housewife_allowance": record.housewife_allowance,
+        "student_allowance": record.student_allowance,
     }
 
 # ⬇️ PUT /customers/{iqama_id}
@@ -211,17 +214,20 @@ async def update_customer(iqama_id: str, request: Request):
         except:
             return None
 
+    float_fields = [
+    "salary_income", "business_income", "investment_income",
+    "rental_income", "pension_income", "hafiz_income", "unemployed_income",
+    "housewife_allowance", "student_allowance"
+    ]
+
     for field, value in update_data.items():
         if hasattr(record, field):
-            if field in [
-                "salary_income", "business_income", "investment_income",
-                "rental_income", "personal_allowance", "pension_income",
-                "hafiz_income", "unemployed_income"
-            ]:
+            if field in float_fields:
                 setattr(record, field, clean_amount(value))
             else:
                 setattr(record, field, value)
-            updated_fields_list.append(field)  # ✅ Add this
+            updated_fields_list.append(field)
+
 
     if not updated_fields_list:
         raise HTTPException(status_code=400, detail="No valid fields provided for update.")
