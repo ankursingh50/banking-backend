@@ -44,17 +44,22 @@ class UpdateCustomerRequest(BaseModel):
     password: Optional[str]
     current_step: Optional[str]
     additional_mobile_number: Optional[str]
-    employment_status: Optional[str]
+    #employment_status: Optional[str]
     source_of_income: Optional[str]
     employment_sector: Optional[str]
-    industry: Optional[str]
+    #industry: Optional[str]
     salary_income: Optional[str]
     business_income: Optional[str]
     investment_income: Optional[str]
     rental_income: Optional[str]
     personal_allowance: Optional[str]
     pension_income: Optional[str]
-    other_income: Optional[str]
+    #other_income: Optional[str]
+    employer_industry: Optional[str]
+    business_industry: Optional[str]
+    hafiz_income: Optional[str]
+    unemployed_income: Optional[str]
+
 
 # ⬇️ POST /customers/start
 @router.post("/start")
@@ -167,17 +172,21 @@ async def get_customer(iqama_id: str):
         "pep_flag": record.pep_flag,
         "disability_flag": record.disability_flag,
         "tax_residency_outside_ksa": record.tax_residency_outside_ksa,
-        "employment_status": record.employment_status,
+        #"employment_status": record.employment_status,
         "source_of_income": record.source_of_income,
         "employment_sector": record.employment_sector,
-        "industry": record.industry,
+        #"industry": record.industry,
         "salary_income": record.salary_income,
         "business_income": record.business_income,
         "investment_income": record.investment_income,
         "rental_income": record.rental_income,
         "personal_allowance": record.personal_allowance,
         "pension_income": record.pension_income,
-        "other_income": record.other_income,
+        #"other_income": record.other_income,
+        "employer_industry": record.employer_industry,
+        "business_industry": record.business_industry,
+        "hafiz_income": record.hafiz_income,
+        "unemployed_income": record.unemployed_income,
     }
 
 # ⬇️ PUT /customers/{iqama_id}
@@ -206,7 +215,8 @@ async def update_customer(iqama_id: str, request: Request):
         if hasattr(record, field):
             if field in [
                 "salary_income", "business_income", "investment_income",
-                "rental_income", "personal_allowance", "pension_income", "other_income"
+                "rental_income", "personal_allowance", "pension_income",
+                "hafiz_income", "unemployed_income"
             ]:
                 setattr(record, field, clean_amount(value))
             else:

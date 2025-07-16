@@ -41,10 +41,11 @@ class OnboardedCustomer(models.Model):
     password = fields.CharField(max_length=100, null=True)
     current_step = fields.CharField(max_length=100, null=True)
 
-    employment_status = fields.CharField(max_length=50, null=True)
+    #employment_status = fields.CharField(max_length=50, null=True)
     source_of_income = fields.TextField(null=True)  # comma-separated values
     employment_sector = fields.CharField(max_length=50, null=True)
-    industry = fields.CharField(max_length=100, null=True)
+    employer_industry = fields.CharField(max_length=100, null=True)
+    business_industry = fields.CharField(max_length=100, null=True)
 
     salary_income = fields.DecimalField(max_digits=13, decimal_places=2, null=True)
     business_income = fields.DecimalField(max_digits=13, decimal_places=2, null=True)
@@ -52,8 +53,8 @@ class OnboardedCustomer(models.Model):
     rental_income = fields.DecimalField(max_digits=13, decimal_places=2, null=True)
     personal_allowance = fields.DecimalField(max_digits=13, decimal_places=2, null=True)
     pension_income = fields.DecimalField(max_digits=13, decimal_places=2, null=True)
-    other_income = fields.DecimalField(max_digits=13, decimal_places=2, null=True)
-
+    hafiz_income = fields.DecimalField(max_digits=13, decimal_places=2, null=True)
+    unemployed_income = fields.DecimalField(max_digits=13, decimal_places=2, null=True)
 
     class Meta:
         table = "onboarded_customers"
