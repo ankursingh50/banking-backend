@@ -124,16 +124,16 @@ async def get_onboarded_customers():
 @router.get("/device/{device_id}")
 async def get_customer_by_device(device_id: str):
     customer = await OnboardedCustomer.filter(
-        device_id=device_id,
-        status="in_progress"
+        device_id=device_id
     ).first()
 
     if not customer:
-        raise HTTPException(status_code=404, detail="No resumable onboarding found")
+        raise HTTPException(status_code=404, detail="No onboarding record found")
 
     return {
         "iqama_id": customer.iqama_id,
-        "current_step": customer.current_step
+        "current_step": customer.current_step,
+        "status": customer.status
     }
 
 # ⬇️ GET /customers/{iqama_id}
