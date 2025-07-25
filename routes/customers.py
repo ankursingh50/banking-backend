@@ -3,7 +3,7 @@ from models.customer import OnboardedCustomer
 from models.iqama import IqamaRecord
 from pydantic import BaseModel
 from typing import Optional
-from utils import generate_dep_reference_number
+from reference_utils import generate_dep_reference_number
 from datetime import datetime, date
 from tortoise import timezone
 from utils.security import hash_mpin
