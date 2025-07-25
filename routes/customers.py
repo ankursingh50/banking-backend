@@ -6,6 +6,7 @@ from typing import Optional
 from utils import generate_dep_reference_number
 from datetime import datetime, date
 from tortoise import timezone
+from utils.security import hash_mpin
 
 router = APIRouter()
 
@@ -224,6 +225,9 @@ async def update_customer(iqama_id: str, request: Request):
         if hasattr(record, field):
             if field in float_fields:
                 setattr(record, field, clean_amount(value))
+            elif field == "mpin" and value:
+                hashed = hash_mpin(value)
+                setattr(record, field, hashed)
             else:
                 setattr(record, field, value)
             updated_fields_list.append(field)
