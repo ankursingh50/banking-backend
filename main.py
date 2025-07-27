@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes import theme_settings
 from routes import absher
 from routes import iqama
+from routes import mpin
 
 load_dotenv(dotenv_path=".env")
 print("Using DB:", os.getenv("DATABASE_URL"))
@@ -42,6 +43,7 @@ app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 app.include_router(theme_settings.router)
 app.include_router(absher.router, prefix="/admin", tags=["Absher"])
 app.include_router(iqama.router, prefix="/iqama")
+app.include_router(mpin.router)
 
 #@app.post("/validate-iqama")
 #async def validate_iqama(data: dict):
