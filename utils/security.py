@@ -8,3 +8,10 @@ def hash_mpin(mpin: str) -> str:
 
 def verify_mpin(plain_mpin: str, hashed_mpin: str) -> bool:
     return pwd_context.verify(plain_mpin, hashed_mpin)
+
+# ✅ Add this for password
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)

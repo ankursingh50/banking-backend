@@ -7,6 +7,7 @@ from reference_utils import generate_dep_reference_number
 from datetime import datetime, date
 from tortoise import timezone
 from utils.security import hash_mpin
+from utils.security import verify_password
 
 router = APIRouter()
 
@@ -106,6 +107,18 @@ async def start_customer_onboarding(data: StartOnboardingRequest):
         current_step=data.current_step or "nafath"
     )
     return record
+
+@router.post("/verify-password")
+async def verify_password_route(data: PasswordVerificationRequest):
+    user = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+    if not user or not user.password:
+        raise HTTPException(status_code=404, detail="User or password not found")
+    
+    if not verify_password(data.password, user.password):
+        raise HTTPException(status_code=401, detail="Invalid password")
+
+    return {"message": "Password verified"}
+
 
 # ⬇️ GET /customers/onboarded
 @router.get("/onboarded")
@@ -226,8 +239,12 @@ async def update_customer(iqama_id: str, request: Request):
             if field in float_fields:
                 setattr(record, field, clean_amount(value))
             elif field == "mpin" and value:
-                hashed = hash_mpin(value)
-                setattr(record, field, hashed)
+                from utils.security import hash_mpin
+                setattr(record, field, hash_mpin(value))
+
+            elif field == "password" and value:
+                from utils.security import hash_password
+                setattr(record, field, hash_password(value))
             else:
                 setattr(record, field, value)
             updated_fields_list.append(field)

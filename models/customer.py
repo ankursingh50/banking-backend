@@ -38,7 +38,7 @@ class OnboardedCustomer(models.Model):
     account_purpose = fields.CharField(max_length=500, null=True)
     estimated_withdrawal = fields.DecimalField(max_digits=13, decimal_places=2, null=True)
     mpin = fields.CharField(max_length=255, null=True)
-    password = fields.CharField(max_length=100, null=True)
+    password = fields.CharField(max_length=255, null=True)
     current_step = fields.CharField(max_length=100, null=True)
 
     #employment_status = fields.CharField(max_length=50, null=True)
