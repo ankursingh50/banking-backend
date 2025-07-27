@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException, Request
 from models.customer import OnboardedCustomer
 from models.iqama import IqamaRecord
-from pydantic import BaseModel
 from typing import Optional
 from reference_utils import generate_dep_reference_number
 from datetime import datetime, date
 from tortoise import timezone
 from utils.security import hash_mpin
 from utils.security import verify_password
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -107,6 +107,10 @@ async def start_customer_onboarding(data: StartOnboardingRequest):
         current_step=data.current_step or "nafath"
     )
     return record
+
+class PasswordVerificationRequest(BaseModel):
+    iqama_id: str
+    password: str
 
 @router.post("/verify-password")
 async def verify_password_route(data: PasswordVerificationRequest):
