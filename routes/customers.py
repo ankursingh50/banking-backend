@@ -140,10 +140,10 @@ async def validate_reset_request(data: IqamaDOBValidationRequest):
 
     if data.calendar_type == "gregorian":
         if user.date_of_birth.strftime("%d %B %Y") != data.dob:
-            raise HTTPException(status_code=400, detail="Date of Birth is incorrect")
+            raise HTTPException(status_code=400, detail="Your ID/Iqama Number and Date of Birth does not match")
     elif data.calendar_type == "hijri":
         if user.date_of_birth_hijri != data.dob:
-            raise HTTPException(status_code=400, detail="Date of Birth is incorrect")
+            raise HTTPException(status_code=400, detail="Your ID/Iqama Number and Date of Birth does not match")
     else:
         raise HTTPException(status_code=400, detail="Invalid calendar type")
 
