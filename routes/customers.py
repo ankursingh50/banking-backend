@@ -123,6 +123,31 @@ async def verify_password_route(data: PasswordVerificationRequest):
 
     return {"message": "Password verified"}
 
+class IqamaDOBValidationRequest(BaseModel):
+    iqama_id: str
+    calendar_type: str  # 'gregorian' or 'hijri'
+    dob: str            # in format: "DD Month YYYY"
+
+@router.post("/validate-reset-request")
+async def validate_reset_request(data: IqamaDOBValidationRequest):
+    user = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Customer with this Iqama ID does not exist")
+
+    if user.status != "Account Successfully Created":
+        raise HTTPException(status_code=403, detail="Customer account is not ready for reset")
+
+    if data.calendar_type == "gregorian":
+        if user.date_of_birth.strftime("%d %B %Y") != data.dob:
+            raise HTTPException(status_code=400, detail="Date of Birth is incorrect")
+    elif data.calendar_type == "hijri":
+        if user.date_of_birth_hijri != data.dob:
+            raise HTTPException(status_code=400, detail="Date of Birth is incorrect")
+    else:
+        raise HTTPException(status_code=400, detail="Invalid calendar type")
+
+    return {"message": "Validation passed"}
 
 # ⬇️ GET /customers/onboarded
 @router.get("/onboarded")
