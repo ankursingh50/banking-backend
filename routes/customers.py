@@ -131,16 +131,16 @@ async def verify_password_route(data: PasswordVerificationRequest, request: Requ
     if not verify_password(data.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid password")
 
-    # Optional: return device check status
     device_id = request.headers.get("device_id")
-    is_same_device = device_id == user.device_id if device_id and user.device_id else None
+    is_same_device = device_id == user.device_id if device_id and user.device_id else False
 
     return {
         "message": "Password verified",
         "is_same_device": is_same_device,
-        "current_step": user.current_step,
-        "status": user.status
+        "status": user.status,
+        "current_step": user.current_step
     }
+
 
 class IqamaDOBValidationRequest(BaseModel):
     iqama_id: str
@@ -263,7 +263,9 @@ async def update_customer(iqama_id: str, request: Request):
 
     device_id_header = request.headers.get('device_id')
     if record.device_id and device_id_header and record.device_id != device_id_header:
-        pass
+        print(f"⚠️ Device mismatch: {record.device_id} vs {device_id_header} — allowing update anyway")
+        # ✅ Don't skip the update logic — allow update
+
 
     update_data = await request.json()
     updated_fields_list = []
