@@ -206,6 +206,31 @@ async def get_customer_by_device(device_id: str):
         "status": customer.status
     }
 
+#Update Device Information
+@router.post("/update-device")
+async def update_device_info(data: DeviceUpdateRequest):
+    user = None
+
+    if data.iqama_id:
+        user = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+    if not user and data.mobile:
+        user = await OnboardedCustomer.get_or_none(mobile_number=data.mobile)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    user.device_id = data.device_id
+    user.device_type = data.device_type
+    user.location = data.location
+    user.updated_at = timezone.now()
+    await user.save()
+
+    return {
+        "message": "Device information updated",
+        "iqama_id": user.iqama_id,
+        "device_id": user.device_id
+    }
+
 # ⬇️ GET /customers/{iqama_id}
 @router.get("/{iqama_id}")
 async def get_customer(iqama_id: str):
