@@ -123,15 +123,24 @@ class PasswordVerificationRequest(BaseModel):
     password: str
 
 @router.post("/verify-password")
-async def verify_password_route(data: PasswordVerificationRequest):
+async def verify_password_route(data: PasswordVerificationRequest, request: Request):
     user = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
     if not user or not user.password:
         raise HTTPException(status_code=404, detail="User or password not found")
-    
+
     if not verify_password(data.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid password")
 
-    return {"message": "Password verified"}
+    # Optional: return device check status
+    device_id = request.headers.get("device_id")
+    is_same_device = device_id == user.device_id if device_id and user.device_id else None
+
+    return {
+        "message": "Password verified",
+        "is_same_device": is_same_device,
+        "current_step": user.current_step,
+        "status": user.status
+    }
 
 class IqamaDOBValidationRequest(BaseModel):
     iqama_id: str
