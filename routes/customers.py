@@ -128,7 +128,7 @@ class LoginRequest(BaseModel):
     password: str
 
 @router.post("/verify-password")
-async def verify_password_route(data: LoginRequest, request: Request):
+async def verify_password_route(data: LoginRequest):
     user = None
 
     if data.iqama_id:
@@ -142,17 +142,12 @@ async def verify_password_route(data: LoginRequest, request: Request):
     if not verify_password(data.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid password")
 
-    device_id = request.headers.get("device_id")
-    is_same_device = device_id == user.device_id if device_id and user.device_id else False
-
     return {
         "message": "Password verified",
-        "is_same_device": is_same_device,
         "iqama_id": user.iqama_id,
         "status": user.status,
         "current_step": user.current_step
     }
-
 
 
 class IqamaDOBValidationRequest(BaseModel):
