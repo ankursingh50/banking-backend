@@ -69,7 +69,17 @@ class UpdateCustomerRequest(BaseModel):
 async def start_customer_onboarding(data: StartOnboardingRequest):
     existing = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
     if existing:
-        return existing
+        # If the device is already registered, return the record as-is
+        if existing.device_id == data.device_id:
+            return existing
+        else:
+            # Device is new — update device binding info and return
+            existing.device_id = data.device_id
+            existing.device_type = data.device_type
+            existing.location = data.location
+            existing.updated_at = timezone.now()
+            await existing.save()
+            return existing
 
     iqama = await IqamaRecord.get_or_none(iqama_id=data.iqama_id)
     if not iqama:
