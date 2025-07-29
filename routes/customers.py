@@ -206,6 +206,13 @@ async def get_customer_by_device(device_id: str):
         "status": customer.status
     }
 
+class DeviceUpdateRequest(BaseModel):
+    iqama_id: Optional[str] = None
+    mobile: Optional[str] = None
+    device_id: str
+    device_type: Optional[str] = None
+    location: Optional[str] = None
+
 #Update Device Information
 @router.post("/update-device")
 async def update_device_info(data: DeviceUpdateRequest):
