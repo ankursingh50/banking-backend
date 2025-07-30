@@ -20,8 +20,8 @@ async def validate_iqama(payload: dict):
         raise HTTPException(status_code=400, detail="Mobile number does not match")
 
     existing = await OnboardedCustomer.get_or_none(iqama_id=iqama_id)
-    if existing:
-        raise HTTPException(status_code=400, detail="Iqama already onboarded")
+    if existing and existing.status == "Account Successfully Created":
+    raise HTTPException(status_code=400, detail="Iqama already onboarded")
 
     today = date.today()
     dob = iqama.date_of_birth
