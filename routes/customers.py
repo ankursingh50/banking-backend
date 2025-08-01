@@ -294,6 +294,59 @@ async def get_customer(iqama_id: str):
         "student_allowance": record.student_allowance,
     }
 
+# ⬇️ GET /customers/{mobile number}
+@router.get("/by-mobile/{mobile_number}")
+async def get_customer_by_mobile(mobile_number: str):
+    record = await OnboardedCustomer.get_or_none(mobile_number=mobile_number)
+    if not record:
+        raise HTTPException(status_code=404, detail="Customer record not found")
+
+    return {
+        "iqama_id": record.iqama_id,
+        "full_name": record.full_name,
+        "arabic_name": record.arabic_name,
+        "mobile_number": record.mobile_number,
+        "dep_reference_number": record.dep_reference_number,
+        "status": record.status,
+        "created_at": record.created_at,
+        "date_of_birth": record.date_of_birth,
+        "date_of_birth_hijri": record.date_of_birth_hijri,
+        "expiry_date": record.expiry_date,
+        "expiry_date_hijri": record.expiry_date_hijri,
+        "issue_date": record.issue_date,
+        "age": record.age,
+        "gender": record.gender,
+        "nationality": record.nationality,
+        "building_number": record.building_number,
+        "street": record.street,
+        "neighbourhood": record.neighbourhood,
+        "city": record.city,
+        "postal_code": record.postal_code,
+        "country": record.country,
+        "device_id": record.device_id,
+        "device_type": record.device_type,
+        "location": record.location,
+        "account_purpose": record.account_purpose,
+        "estimated_withdrawal": record.estimated_withdrawal,
+        "pep_flag": record.pep_flag,
+        "disability_flag": record.disability_flag,
+        "tax_residency_outside_ksa": record.tax_residency_outside_ksa,
+        "source_of_income": record.source_of_income,
+        "employment_sector": record.employment_sector,
+        "salary_income": record.salary_income,
+        "business_income": record.business_income,
+        "investment_income": record.investment_income,
+        "rental_income": record.rental_income,
+        "pension_income": record.pension_income,
+        "employer_industry": record.employer_industry,
+        "business_industry": record.business_industry,
+        "hafiz_income": record.hafiz_income,
+        "unemployed_income": record.unemployed_income,
+        "housewife_allowance": record.housewife_allowance,
+        "student_allowance": record.student_allowance,
+    }
+
+
 # ⬇️ PUT /customers/{iqama_id}
 @router.put("/{iqama_id}")
 async def update_customer(iqama_id: str, request: Request):
