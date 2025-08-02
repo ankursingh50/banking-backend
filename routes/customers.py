@@ -69,28 +69,32 @@ class UpdateCustomerRequest(BaseModel):
 async def start_customer_onboarding(data: StartOnboardingRequest):
     existing = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
 
-    # ⚠️ If record exists
     if existing:
         if existing.status == "Account Successfully Created":
             raise HTTPException(status_code=400, detail="Iqama already onboarded")
 
+        # ✅ Invalidate old device if needed
+        resumed_on_new_device = False
         if existing.device_id and existing.device_id != data.device_id:
-            # 🛑 Invalidate previous session
             existing.status = "Started on another device"
-            existing.device_id = None  # Or retain for audit if needed
+            existing.device_id = None
             existing.updated_at = timezone.now()
             await existing.save()
+            resumed_on_new_device = True
 
-            return {
-                "resumed_on_new_device": True,
-                "record": existing
-            }
-        else:
-            # ✅ Same device - continue
-            return {
-                "resumed_on_new_device": False,
-                "record": existing
-            }
+        # 🔄 Update the existing record with the new device details
+        existing.device_id = data.device_id
+        existing.device_type = data.device_type
+        existing.location = data.location
+        existing.status = "in_progress"
+        existing.current_step = data.current_step or "nafath"
+        existing.updated_at = timezone.now()
+        await existing.save()
+
+        return {
+            "resumed_on_new_device": resumed_on_new_device,
+            "record": existing
+        }
 
     # 🔍 Lookup from iqama_records
     iqama = await IqamaRecord.get_or_none(iqama_id=data.iqama_id)
@@ -100,43 +104,42 @@ async def start_customer_onboarding(data: StartOnboardingRequest):
     # Generate DEP reference number
     dep_ref = await generate_dep_reference_number()
 
-    # 🚀 Start onboarding for the new device
-    record = await OnboardedCustomer.update_or_create(
-        {"iqama_id": iqama.iqama_id},
-        defaults={
-            "full_name": iqama.full_name,
-            "arabic_name": iqama.arabic_name,
-            "mobile_number": iqama.mobile_number,
-            "date_of_birth": strip_tz(iqama.date_of_birth),
-            "date_of_birth_hijri": str(iqama.dob_hijri) if iqama.dob_hijri else None,
-            "expiry_date": strip_tz(iqama.expiry_date),
-            "expiry_date_hijri": iqama.expiry_date_hijri,
-            "issue_date": strip_tz(iqama.issue_date),
-            "age": (
-                date.today().year - iqama.date_of_birth.year
-                - ((date.today().month, date.today().day) < (iqama.date_of_birth.month, iqama.date_of_birth.day))
-            ) if iqama.date_of_birth else None,
-            "gender": iqama.gender,
-            "nationality": iqama.nationality,
-            "building_number": iqama.building_number,
-            "street": iqama.street,
-            "neighbourhood": iqama.neighbourhood,
-            "city": iqama.city,
-            "postal_code": iqama.postal_code,
-            "country": iqama.country,
-            "dep_reference_number": dep_ref,
-            "device_id": data.device_id,
-            "device_type": data.device_type,
-            "location": data.location,
-            "status": "in_progress",
-            "current_step": data.current_step or "nafath"
-        }
+    # 🚀 Start onboarding for the new iqama_id
+    record = await OnboardedCustomer.create(
+        iqama_id=iqama.iqama_id,
+        full_name=iqama.full_name,
+        arabic_name=iqama.arabic_name,
+        mobile_number=iqama.mobile_number,
+        date_of_birth=strip_tz(iqama.date_of_birth),
+        date_of_birth_hijri=str(iqama.dob_hijri) if iqama.dob_hijri else None,
+        expiry_date=strip_tz(iqama.expiry_date),
+        expiry_date_hijri=iqama.expiry_date_hijri,
+        issue_date=strip_tz(iqama.issue_date),
+        age=(
+            date.today().year - iqama.date_of_birth.year
+            - ((date.today().month, date.today().day) < (iqama.date_of_birth.month, iqama.date_of_birth.day))
+        ) if iqama.date_of_birth else None,
+        gender=iqama.gender,
+        nationality=iqama.nationality,
+        building_number=iqama.building_number,
+        street=iqama.street,
+        neighbourhood=iqama.neighbourhood,
+        city=iqama.city,
+        postal_code=iqama.postal_code,
+        country=iqama.country,
+        dep_reference_number=dep_ref,
+        device_id=data.device_id,
+        device_type=data.device_type,
+        location=data.location,
+        status="in_progress",
+        current_step=data.current_step or "nafath"
     )
 
     return {
         "resumed_on_new_device": False,
         "record": record
     }
+
 
 
 class PasswordVerificationRequest(BaseModel):
