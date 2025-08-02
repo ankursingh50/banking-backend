@@ -24,12 +24,14 @@ origins = [
     "http://localhost",
     "http://localhost:3000",  # Your React admin portal
     "http://localhost:5173",  # ✅ ADD THIS LINE for your new Vite admin portal
+    "https://admin-frontend-llsr.onrender.com",  # ✅ ADD THIS LINE for your deployed admin portal
     # Add any other origins you might deploy to
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
     # ... rest of the middleware config ...
