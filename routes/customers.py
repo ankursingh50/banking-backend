@@ -380,7 +380,7 @@ async def update_customer(iqama_id: str, request: Request):
 
     device_id_header = request.headers.get('device_id')
     if record.device_id and device_id_header and record.device_id != device_id_header:
-        print(f"⚠️ Device mismatch: {record.device_id} vs {device_id_header} — allowing update anyway")
+        raise HTTPException(status_code=403, detail="Onboarding has been resumed on another device. This session is no longer valid.")
         # ✅ Don't skip the update logic — allow update
 
 
