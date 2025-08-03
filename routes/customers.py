@@ -316,6 +316,12 @@ async def get_customer(iqama_id: str):
         "unemployed_income": record.unemployed_income,
         "housewife_allowance": record.housewife_allowance,
         "student_allowance": record.student_allowance,
+        "device_registration_date": record.device_registration_date,
+        "device_registration_time": record.device_registration_time,
+        "password_set_date": record.password_set_date,
+        "password_set_time": record.password_set_time,
+        "mpin_set_date": record.mpin_set_date,
+        "mpin_set_time": record.mpin_set_time,
     }
 
 # ⬇️ GET /customers/{mobile number}
@@ -368,6 +374,12 @@ async def get_customer_by_mobile(mobile_number: str):
         "unemployed_income": record.unemployed_income,
         "housewife_allowance": record.housewife_allowance,
         "student_allowance": record.student_allowance,
+        "device_registration_date": record.device_registration_date,
+        "device_registration_time": record.device_registration_time,
+        "password_set_date": record.password_set_date,
+        "password_set_time": record.password_set_time,
+        "mpin_set_date": record.mpin_set_date,
+        "mpin_set_time": record.mpin_set_time,
     }
 
 
@@ -434,3 +446,84 @@ async def delete_customer(iqama_id: str):
 
     await record.delete()
     return {"message": "Customer and associated device binding removed"}
+
+class ExpiryDateUpdateRequest(BaseModel):
+    iqama_id: str
+    expiry_date: date  # Gregorian
+    expiry_date_hijri: Optional[str] = None  # Hijri (as string)
+
+#Update Iqama Expiry Date
+@router.put("/update-expiry-date")
+async def update_expiry_date(data: ExpiryDateUpdateRequest):
+    record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    record.expiry_date = data.expiry_date
+    if data.expiry_date_hijri:
+        record.expiry_date_hijri = data.expiry_date_hijri
+
+    record.updated_at = timezone.now()
+    await record.save()
+
+    return {"message": "Expiry date updated successfully"}
+
+class DeviceRegistrationUpdateRequest(BaseModel):
+    iqama_id: str
+    date: date
+    time: str  # format "HH:MM:SS"
+
+#update device registration timestamp
+@router.put("/update-device-registration")
+async def update_device_registration(data: DeviceRegistrationUpdateRequest):
+    record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    record.device_registration_date = data.date
+    record.device_registration_time = data.time
+    record.updated_at = timezone.now()
+    await record.save()
+
+    return {"message": "Device registration timestamp updated successfully"}
+
+class PasswordSetTimestampRequest(BaseModel):
+    iqama_id: str
+    date: date
+    time: str  # format "HH:MM:SS"
+
+#update password set timestamp
+@router.put("/update-password-set-time")
+async def update_password_set_time(data: PasswordSetTimestampRequest):
+    record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    record.password_set_date = data.date
+    record.password_set_time = data.time
+    record.updated_at = timezone.now()
+    await record.save()
+
+    return {"message": "Password set timestamp updated successfully"}
+
+class MPINSetTimestampRequest(BaseModel):
+    iqama_id: str
+    date: date
+    time: str  # format "HH:MM:SS"
+
+#update mpin set timestamp
+@router.put("/update-mpin-set-time")
+async def update_mpin_set_time(data: MPINSetTimestampRequest):
+    record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    record.mpin_set_date = data.date
+    record.mpin_set_time = data.time
+    record.updated_at = timezone.now()
+    await record.save()
+
+    return {"message": "MPIN set timestamp updated successfully"}
+
+
+

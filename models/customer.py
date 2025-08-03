@@ -28,6 +28,13 @@ class OnboardedCustomer(models.Model):
     device_type = fields.CharField(max_length=100, null=True)
     location = fields.CharField(max_length=255, null=True)
 
+    device_registration_date = fields.DateField(null=True)
+    device_registration_time = fields.TimeField(null=True)
+    password_set_date = fields.DateField(null=True)
+    password_set_time = fields.TimeField(null=True)
+    mpin_set_date = fields.DateField(null=True)
+    mpin_set_time = fields.TimeField(null=True)
+
     status = fields.CharField(max_length=100, default="in_progress")
     created_at = fields.DatetimeField(default=timezone.now)
     updated_at = fields.DatetimeField(default=timezone.now)
