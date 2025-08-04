@@ -12,6 +12,7 @@ from routes import theme_settings
 from routes import absher
 from routes import iqama
 from routes import mpin
+from routes import account_details  # if not already imported
 
 load_dotenv(dotenv_path=".env")
 print("Using DB:", os.getenv("DATABASE_URL"))
@@ -46,6 +47,7 @@ app.include_router(theme_settings.router)
 app.include_router(absher.router, prefix="/admin", tags=["Absher"])
 app.include_router(iqama.router, prefix="/iqama")
 app.include_router(mpin.router)
+app.include_router(account_details.router, prefix="/api")
 
 #@app.post("/validate-iqama")
 #async def validate_iqama(data: dict):
