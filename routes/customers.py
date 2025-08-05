@@ -383,6 +383,66 @@ async def get_customer_by_mobile(mobile_number: str):
         "mpin_set_time": record.mpin_set_time,
     }
 
+class DeviceRegistrationUpdateRequest(BaseModel):
+    iqama_id: str
+    date: date
+    time: str  # format "HH:MM:SS"
+
+#update device registration timestamp
+@router.put("/update-device-registration")
+async def update_device_registration(data: DeviceRegistrationUpdateRequest):
+    try:
+        record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+        if not record:
+            raise HTTPException(status_code=404, detail="Customer not found")
+
+        record.device_registration_date = data.date
+        record.device_registration_time = data.time
+        record.updated_at = timezone.now()
+        await record.save()
+
+        return {"message": "Device registration timestamp updated successfully"}
+    except Exception as e:
+        traceback.print_exc()  # 🔍 This will print error in Render logs
+        raise HTTPException(status_code=500, detail=str(e))
+
+class PasswordSetTimestampRequest(BaseModel):
+    iqama_id: str
+    date: date
+    time: str  # format "HH:MM:SS"
+
+#update password set timestamp
+@router.put("/update-password-set-time")
+async def update_password_set_time(data: PasswordSetTimestampRequest):
+    record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    record.password_set_date = data.date
+    record.password_set_time = data.time
+    record.updated_at = timezone.now()
+    await record.save()
+
+    return {"message": "Password set timestamp updated successfully"}
+
+class MPINSetTimestampRequest(BaseModel):
+    iqama_id: str
+    date: date
+    time: str  # format "HH:MM:SS"
+
+#update mpin set timestamp
+@router.put("/update-mpin-set-time")
+async def update_mpin_set_time(data: MPINSetTimestampRequest):
+    record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    record.mpin_set_date = data.date
+    record.mpin_set_time = data.time
+    record.updated_at = timezone.now()
+    await record.save()
+
+    return {"message": "MPIN set timestamp updated successfully"}
 
 # ⬇️ PUT /customers/{iqama_id}
 @router.put("/{iqama_id}")
@@ -469,66 +529,6 @@ async def update_expiry_date(data: ExpiryDateUpdateRequest):
 
     return {"message": "Expiry date updated successfully"}
 
-class DeviceRegistrationUpdateRequest(BaseModel):
-    iqama_id: str
-    date: date
-    time: str  # format "HH:MM:SS"
-
-#update device registration timestamp
-@router.put("/update-device-registration")
-async def update_device_registration(data: DeviceRegistrationUpdateRequest):
-    try:
-        record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
-        if not record:
-            raise HTTPException(status_code=404, detail="Customer not found")
-
-        record.device_registration_date = data.date
-        record.device_registration_time = data.time
-        record.updated_at = timezone.now()
-        await record.save()
-
-        return {"message": "Device registration timestamp updated successfully"}
-    except Exception as e:
-        traceback.print_exc()  # 🔍 This will print error in Render logs
-        raise HTTPException(status_code=500, detail=str(e))
-
-class PasswordSetTimestampRequest(BaseModel):
-    iqama_id: str
-    date: date
-    time: str  # format "HH:MM:SS"
-
-#update password set timestamp
-@router.put("/update-password-set-time")
-async def update_password_set_time(data: PasswordSetTimestampRequest):
-    record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
-    if not record:
-        raise HTTPException(status_code=404, detail="Customer not found")
-
-    record.password_set_date = data.date
-    record.password_set_time = data.time
-    record.updated_at = timezone.now()
-    await record.save()
-
-    return {"message": "Password set timestamp updated successfully"}
-
-class MPINSetTimestampRequest(BaseModel):
-    iqama_id: str
-    date: date
-    time: str  # format "HH:MM:SS"
-
-#update mpin set timestamp
-@router.put("/update-mpin-set-time")
-async def update_mpin_set_time(data: MPINSetTimestampRequest):
-    record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
-    if not record:
-        raise HTTPException(status_code=404, detail="Customer not found")
-
-    record.mpin_set_date = data.date
-    record.mpin_set_time = data.time
-    record.updated_at = timezone.now()
-    await record.save()
-
-    return {"message": "MPIN set timestamp updated successfully"}
 
 
 
