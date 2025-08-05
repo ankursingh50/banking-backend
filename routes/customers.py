@@ -8,6 +8,7 @@ from tortoise import timezone
 from utils.security import hash_mpin
 from utils.security import verify_password
 from pydantic import BaseModel
+import traceback
 
 router = APIRouter()
 
@@ -476,16 +477,20 @@ class DeviceRegistrationUpdateRequest(BaseModel):
 #update device registration timestamp
 @router.put("/update-device-registration")
 async def update_device_registration(data: DeviceRegistrationUpdateRequest):
-    record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
-    if not record:
-        raise HTTPException(status_code=404, detail="Customer not found")
+    try:
+        record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+        if not record:
+            raise HTTPException(status_code=404, detail="Customer not found")
 
-    record.device_registration_date = data.date
-    record.device_registration_time = data.time
-    record.updated_at = timezone.now()
-    await record.save()
+        record.device_registration_date = data.date
+        record.device_registration_time = data.time
+        record.updated_at = timezone.now()
+        await record.save()
 
-    return {"message": "Device registration timestamp updated successfully"}
+        return {"message": "Device registration timestamp updated successfully"}
+    except Exception as e:
+        traceback.print_exc()  # 🔍 This will print error in Render logs
+        raise HTTPException(status_code=500, detail=str(e))
 
 class PasswordSetTimestampRequest(BaseModel):
     iqama_id: str
