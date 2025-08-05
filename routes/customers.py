@@ -391,20 +391,22 @@ class DeviceRegistrationUpdateRequest(BaseModel):
 #update device registration timestamp
 @router.put("/update-device-registration")
 async def update_device_registration(data: DeviceRegistrationUpdateRequest):
+    record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    # Convert time string to time object
     try:
-        record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
-        if not record:
-            raise HTTPException(status_code=404, detail="Customer not found")
+        time_obj = datetime.strptime(data.time, "%H:%M:%S").time()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid time format. Use HH:MM:SS")
 
-        record.device_registration_date = data.date
-        record.device_registration_time = data.time
-        record.updated_at = timezone.now()
-        await record.save()
+    record.device_registration_date = data.date
+    record.device_registration_time = time_obj
+    record.updated_at = timezone.now()
+    await record.save()
 
-        return {"message": "Device registration timestamp updated successfully"}
-    except Exception as e:
-        traceback.print_exc()  # 🔍 This will print error in Render logs
-        raise HTTPException(status_code=500, detail=str(e))
+    return {"message": "Device registration timestamp updated successfully"}
 
 class PasswordSetTimestampRequest(BaseModel):
     iqama_id: str
@@ -418,8 +420,13 @@ async def update_password_set_time(data: PasswordSetTimestampRequest):
     if not record:
         raise HTTPException(status_code=404, detail="Customer not found")
 
+    try:
+        time_obj = datetime.strptime(data.time, "%H:%M:%S").time()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid time format. Use HH:MM:SS")
+
     record.password_set_date = data.date
-    record.password_set_time = data.time
+    record.password_set_time = time_obj
     record.updated_at = timezone.now()
     await record.save()
 
@@ -437,8 +444,13 @@ async def update_mpin_set_time(data: MPINSetTimestampRequest):
     if not record:
         raise HTTPException(status_code=404, detail="Customer not found")
 
+    try:
+        time_obj = datetime.strptime(data.time, "%H:%M:%S").time()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid time format. Use HH:MM:SS")
+
     record.mpin_set_date = data.date
-    record.mpin_set_time = data.time
+    record.mpin_set_time = time_obj
     record.updated_at = timezone.now()
     await record.save()
 
