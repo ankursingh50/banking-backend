@@ -15,6 +15,7 @@ TORTOISE_ORM = {
             "models.portfolio",  # ✅ Portfolio summary
             "models.account", # ✅ Account details
             "models.card",  # ✅ Card Details
+            "models.transaction",  # ✅ transaction summary
             "models.absher",
             "models.theme_settings",  # 👈 Add this
             "aerich.models"

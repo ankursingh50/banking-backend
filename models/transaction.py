@@ -1,0 +1,37 @@
+from tortoise import fields, models
+
+class TransactionSummary(models.Model):
+    account_number = fields.BigIntField(pk=True)
+    recent_transaction_type_1 = fields.CharField(max_length=255, null=True)
+    recent_transaction_date_1 = fields.CharField(max_length=255, null=True)
+    recent_transactions_amount_1 = fields.BigIntField(null=True)
+    recent_transaction_type_2 = fields.CharField(max_length=255, null=True)
+    recent_transactions_date_2 = fields.CharField(max_length=255, null=True)
+    recent_transactions_amount_2 = fields.BigIntField(null=True)
+    recent_transactions_transaction_type_3 = fields.CharField(max_length=255, null=True)
+    recent_transactions_date_3 = fields.CharField(max_length=255, null=True)
+    recent_transaction_amount_3 = fields.BigIntField(null=True)
+    recent_transaction_type_4 = fields.CharField(max_length=255, null=True)
+    recent_transaction_date_4 = fields.CharField(max_length=255, null=True)
+    recent_transactions_amount_4 = fields.BigIntField(null=True)
+    recent_transaction_type_5 = fields.CharField(max_length=255, null=True)
+    recent_transaction_date_5 = fields.CharField(max_length=255, null=True)
+    recent_transactions_amount_5 = fields.BigIntField(null=True)
+    recent_transaction_type_6 = fields.CharField(max_length=255, null=True)
+    recent_transaction_date_6 = fields.CharField(max_length=255, null=True)
+    recent_transactions_amount_6 = fields.BigIntField(null=True)
+    recent_transaction_type_7 = fields.CharField(max_length=255, null=True)
+    recent_transaction_date_7 = fields.CharField(max_length=255, null=True)
+    recent_transactions_amount_7 = fields.BigIntField(null=True)
+    recent_transaction_type_8 = fields.CharField(max_length=255, null=True)
+    recent_transaction_date_8 = fields.DateField(null=True)
+    recent_transactions_amount_8 = fields.BigIntField(null=True)
+    recent_transaction_type_9 = fields.CharField(max_length=255, null=True)
+    recent_transaction_date_9 = fields.DateField(null=True)
+    recent_transactions_amount_9 = fields.BigIntField(null=True)
+    recent_transaction_type_10 = fields.CharField(max_length=255, null=True)
+    recent_transaction_date_10 = fields.DateField(null=True)
+    recent_transactions_amount_10 = fields.BigIntField(null=True)
+
+    class Meta:
+        table = "transaction_summary"
