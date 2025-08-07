@@ -456,6 +456,27 @@ async def update_mpin_set_time(data: MPINSetTimestampRequest):
 
     return {"message": "MPIN set timestamp updated successfully"}
 
+class ExpiryDateUpdateRequest(BaseModel):
+    iqama_id: str
+    expiry_date: str
+    expiry_date_hijri: Optional[str] = None
+
+#Update Iqama Expiry Date
+@router.put("/update-expiry-date")
+async def update_expiry_date(data: ExpiryDateUpdateRequest):
+    record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    record.expiry_date = data.expiry_date
+    if data.expiry_date_hijri:
+        record.expiry_date_hijri = data.expiry_date_hijri
+
+    record.updated_at = timezone.now()
+    await record.save()
+
+    return {"message": "Expiry date updated successfully"}
+
 # ⬇️ PUT /customers/{iqama_id}
 @router.put("/{iqama_id}")
 async def update_customer(iqama_id: str, request: Request):
@@ -520,26 +541,6 @@ async def delete_customer(iqama_id: str):
     await record.delete()
     return {"message": "Customer and associated device binding removed"}
 
-class ExpiryDateUpdateRequest(BaseModel):
-    iqama_id: str
-    expiry_date: str
-    expiry_date_hijri: Optional[str] = None
-
-#Update Iqama Expiry Date
-@router.put("/update-expiry-date")
-async def update_expiry_date(data: ExpiryDateUpdateRequest):
-    record = await OnboardedCustomer.get_or_none(iqama_id=data.iqama_id)
-    if not record:
-        raise HTTPException(status_code=404, detail="Customer not found")
-
-    record.expiry_date = data.expiry_date
-    if data.expiry_date_hijri:
-        record.expiry_date_hijri = data.expiry_date_hijri
-
-    record.updated_at = timezone.now()
-    await record.save()
-
-    return {"message": "Expiry date updated successfully"}
 
 
 
