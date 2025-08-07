@@ -1,7 +1,7 @@
 from tortoise import fields, models
 
 class PortfolioSummary(models.Model):
-    iqama_id = fields.BigIntField()
+    iqama_id = fields.BigIntField(pk=True)  # ✅ Make this the primary key
     cif_id = fields.BigIntField()
     account_number_1 = fields.BigIntField()
     account_balance_1 = fields.BigIntField()
