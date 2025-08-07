@@ -12,6 +12,7 @@ TORTOISE_ORM = {
             "models": [
             "models.customer",
             "models.iqama",
+            "models.account", # ✅ Account details
             "models.absher",
             "models.theme_settings",  # 👈 Add this
             "aerich.models"
