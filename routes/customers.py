@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException, Request
 from models.customer import OnboardedCustomer
 from models.iqama import IqamaRecord
-from typing import Optional
 from reference_utils import generate_dep_reference_number
 from datetime import datetime, date
 from tortoise import timezone
 from utils.security import hash_mpin
 from utils.security import verify_password
 from pydantic import BaseModel
+from typing import Optional
 import traceback
 
 router = APIRouter()
@@ -522,8 +522,8 @@ async def delete_customer(iqama_id: str):
 
 class ExpiryDateUpdateRequest(BaseModel):
     iqama_id: str
-    expiry_date: date  # Gregorian
-    expiry_date_hijri: Optional[str] = None  # Hijri (as string)
+    expiry_date: str
+    expiry_date_hijri: Optional[str] = None
 
 #Update Iqama Expiry Date
 @router.put("/update-expiry-date")
@@ -540,6 +540,7 @@ async def update_expiry_date(data: ExpiryDateUpdateRequest):
     await record.save()
 
     return {"message": "Expiry date updated successfully"}
+
 
 
 
