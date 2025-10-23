@@ -1,23 +1,24 @@
 # routes/transactions.py
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional, List
-from datetime import date
+from datetime import date, time          # ✅ add time
 from decimal import Decimal
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from tortoise.expressions import Q
 from models.transaction_history import TransactionHistory
 
 router = APIRouter(tags=["Transactions"])
 
-# ---------- Pydantic response schemas ----------
 class TransactionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)   # ✅ Pydantic v2 style
+
     transaction_id: int
     account_number: int
     transaction_type: Optional[str]
     transaction_date: date
     transaction_amount: Decimal
     available_balance: Optional[Decimal] = None
-    time_of_transaction: Optional[str] = None  # ISO "HH:MM:SS"
+    time_of_transaction: Optional[time] = None        # ✅ use time, not str
     merchant: Optional[str] = None
     reference_number: Optional[str] = None
     location_of_transaction: Optional[str] = None
