@@ -17,6 +17,7 @@ from routes import portfolio_summary
 from routes import card_details
 from routes import transaction_summary
 from routes import transactions 
+from routes import international_transactions
 
 load_dotenv(dotenv_path=".env")
 print("Using DB:", os.getenv("DATABASE_URL"))
@@ -56,6 +57,7 @@ app.include_router(portfolio_summary.router, prefix="/api")
 app.include_router(card_details.router, prefix="/api")
 app.include_router(transaction_summary.router, prefix="/api")
 app.include_router(transactions.router, prefix="/api")
+app.include_router(international_transactions.router, prefix="/api")
 
 #@app.post("/validate-iqama")
 #async def validate_iqama(data: dict):
