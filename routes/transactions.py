@@ -1,16 +1,18 @@
 # routes/transactions.py
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional, List
-from datetime import date, time          # ✅ add time
+from datetime import date, time
 from decimal import Decimal
 from pydantic import BaseModel, ConfigDict
 from tortoise.expressions import Q
+from tortoise import Tortoise
 from models.transaction_history import TransactionHistory
 
 router = APIRouter(tags=["Transactions"])
 
+# ---------- Schemas ----------
 class TransactionOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)   # ✅ Pydantic v2 style
+    model_config = ConfigDict(from_attributes=True)  # Pydantic v2
 
     transaction_id: int
     account_number: int
@@ -18,14 +20,11 @@ class TransactionOut(BaseModel):
     transaction_date: date
     transaction_amount: Decimal
     available_balance: Optional[Decimal] = None
-    time_of_transaction: Optional[time] = None        # ✅ use time, not str
+    time_of_transaction: Optional[time] = None
     merchant: Optional[str] = None
     reference_number: Optional[str] = None
     location_of_transaction: Optional[str] = None
     address: Optional[str] = None
-
-    class Config:
-        from_attributes = True  # (Pydantic v2) allow ORM -> model
 
 class TransactionListOut(BaseModel):
     total: int
@@ -50,7 +49,6 @@ async def list_transactions(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
 ):
-    # Build filters
     q = Q()
     if account_number is not None:
         q &= Q(account_number=account_number)
@@ -75,7 +73,6 @@ async def list_transactions(
         .all()
     )
 
-    # Convert to Pydantic
     items = [TransactionOut.model_validate(r) for r in rows]
     return TransactionListOut(total=total, limit=limit, offset=offset, items=items)
 
@@ -88,32 +85,14 @@ async def get_transaction(transaction_id: int):
     return TransactionOut.model_validate(row)
 
 
-@router.get("/accounts/{account_number}/transactions/daily-summary", response_model=List[DailySummaryOut])
+@router.get("/accounts/{account_number}/transactions/daily-summary",
+            response_model=List[DailySummaryOut])
 async def account_daily_summary(
     account_number: int,
     from_date: Optional[date] = Query(None),
     to_date: Optional[date] = Query(None),
 ):
-    q = Q(account_number=account_number)
-    if from_date:
-        q &= Q(transaction_date__gte=from_date)
-    if to_date:
-        q &= Q(transaction_date__lte=to_date)
-
-    # Use ORM first; if perf becomes an issue, switch to raw SQL with GROUP BY
-    rows = (
-        await TransactionHistory
-        .filter(q)
-        .group_by("transaction_date")
-        .annotate(
-            txn_count=TransactionHistory.id.count(),  # fallback: we don't have ".id", so use any field's count
-        )
-        .order_by("-transaction_date")
-        .values("transaction_date")
-    )
-
-    # When you need SUM(amount), Tortoise requires F-expressions; simpler path: raw SQL:
-    # We’ll do a small raw query to include SUM(amount).
+    # Pure SQL for clarity (quotes needed for spaced column names)
     sql = """
         SELECT "Transaction Date" AS day,
                COUNT(*) AS txn_count,
@@ -125,26 +104,18 @@ async def account_daily_summary(
         GROUP BY day
         ORDER BY day DESC
     """
-    params = [account_number]
-    from_clause = "AND \"Transaction Date\" >= $2" if from_date else ""
-    to_clause = "AND \"Transaction Date\" <= $3" if to_date else ""
-    # Adjust parameter ordering if from/to not provided
-    if from_date and to_date:
-        params = [account_number, from_date, to_date]
-    elif from_date and not to_date:
-        sql = sql.replace("{to_clause}", "")
-        params = [account_number, from_date]
-    elif to_date and not from_date:
-        sql = sql.replace("{from_clause}", "")
-        params = [account_number, to_date]
-    else:
-        sql = sql.replace("{from_clause}", "").replace("{to_clause}", "")
+    params: List = [account_number]
+    from_clause = ""
+    to_clause = ""
 
-    # Execute raw SQL with Tortoise
-    res = await TransactionHistory.raw(sql.format(from_clause=from_clause, to_clause=to_clause), *params)
-    # .raw returns a list of model instances; easier: use execute_query_dict:
-    from tortoise import Tortoise
-    resdict = await Tortoise.get_connection("default").execute_query_dict(
-        sql.format(from_clause=from_clause, to_clause=to_clause), params
-    )
-    return [DailySummaryOut(**r) for r in resdict]
+    if from_date:
+        from_clause = "AND \"Transaction Date\" >= $2"
+        params.append(from_date)
+    if to_date:
+        # if both provided, to_date becomes $3; otherwise $2
+        to_clause = f"AND \"Transaction Date\" <= ${len(params)+1}"
+        params.append(to_date)
+
+    sql = sql.format(from_clause=from_clause, to_clause=to_clause)
+    rows = await Tortoise.get_connection("default").execute_query_dict(sql, params)
+    return [DailySummaryOut(**r) for r in rows]
